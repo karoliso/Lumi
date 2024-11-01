@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -25,10 +24,6 @@ namespace Lumi
         public float SampledLightAmount { get; private set; }
 
         private SphericalHarmonicsL2 harmonics;
-        
-        private Material lightmapSamplerMaterial;
-        private RenderTexture renderTexture;
-        private Texture2D tempTexture;
 
         public enum BakedLightSampleMode
         {
@@ -53,44 +48,13 @@ namespace Lumi
         private const float GreenCoef = 0.5870f;
         private const float BlueCoef = 0.1140f;
 
-        private void OnEnable()
-        {
-            SetupSampleMaterials();
-        }
-
-        void SetupSampleMaterials()
-        {
-            if (lightmapSamplerMaterial == null)
-            {
-                lightmapSamplerMaterial = new Material(Shader.Find("Shader Graphs/LightmapSampler"));
-            }
-
-            if (renderTexture == null)
-            {
-                renderTexture = new RenderTexture(1, 1, 0);
-            }
-
-            if (tempTexture == null)
-            {
-                tempTexture = new Texture2D(1, 1, TextureFormat.RGBA32, false);
-            }
-        }
-
-        void Update() 
+        void Update()
         {
             if (Application.isPlaying || runInEditor)
             {
                 UpdateSampledLightAmount();
             }
         }
-        
-#if !UNITY_EDITOR
-        void OnDestroy()
-        {
-            if (renderTexture != null) renderTexture.Release();
-            if (tempTexture != null) Destroy(tempTexture);
-        }
-#endif
 
         public void UpdateSampledLightAmount()
         {
@@ -284,7 +248,7 @@ namespace Lumi
             float r = harmonics[0, 0];
             float g = harmonics[1, 0];
             float b = harmonics[2, 0];
-            
+
             if (perceivedBrightness)
             {
                 lightLevel = (RedCoef * r) + (GreenCoef * g) + (BlueCoef * b);
@@ -296,54 +260,32 @@ namespace Lumi
 
             float lightLevelAdjusted = lightLevel * bakedLightContribution;
 
+            if (lightAdjustmentMode == LightAdjustmentMode.Gamma)
+            {
+                lightLevelAdjusted = Mathf.LinearToGammaSpace(lightLevelAdjusted);
+            }
+
             return lightLevelAdjusted;
-        }
-        
-        private Color SampleLightmapColor(Renderer renderer, Vector2 lightmapCoord)
-        {
-            if (renderer.lightmapIndex < 0 || renderer.lightmapIndex >= LightmapSettings.lightmaps.Length)
-            {
-                return Color.black;
-            }
-
-            LightmapData lightmapData = LightmapSettings.lightmaps[renderer.lightmapIndex];
-            Texture2D lightmapTexture = lightmapData.lightmapColor;
-
-            if (lightmapTexture == null)
-            {
-                return Color.black;
-            }
-
-            lightmapSamplerMaterial.SetTexture("_MainTex", lightmapTexture);
-            lightmapSamplerMaterial.SetVector("_UV", new Vector2(lightmapCoord.x, lightmapCoord.y));
-            
-            Graphics.Blit(null, renderTexture, lightmapSamplerMaterial, 0);
-            
-            RenderTexture.active = renderTexture;
-            tempTexture.ReadPixels(new Rect(0, 0, 1, 1), 0, 0);
-            tempTexture.Apply();
-            RenderTexture.active = null;
-
-            return tempTexture.GetPixel(0, 0);
         }
 
         private float SampleLightmap(Vector3 samplePosition)
         {
-            if (Physics.Raycast(samplePosition, -Vector3.up, out RaycastHit hit, Mathf.Infinity, lightRaycastMask))
+            if (Physics.Raycast(samplePosition, -transform.up, out RaycastHit hit, Mathf.Infinity, lightRaycastMask))
             {
                 Renderer colliderRenderer = hit.collider.GetComponent<Renderer>();
                 if (colliderRenderer == null)
                 {
                     return 0;
                 }
-                
+
+                LightmapData lightMapInfo = LightmapSettings.lightmaps[colliderRenderer.lightmapIndex];
+                Texture2D tex = lightMapInfo.lightmapColor;
                 Vector2 pixelUV = hit.lightmapCoord;
-
-                Color surfaceColor = SampleLightmapColor(colliderRenderer, pixelUV);
-
-                float r = surfaceColor.r;
-                float g = surfaceColor.g;
-                float b = surfaceColor.b;
+                Color surfaceColor = tex.GetPixelBilinear(pixelUV.x, pixelUV.y);
+                
+                float r = Mathf.LinearToGammaSpace(surfaceColor.r);
+                float g = Mathf.LinearToGammaSpace(surfaceColor.g);
+                float b = Mathf.LinearToGammaSpace(surfaceColor.b);
                 
                 float grayscale;
 
