@@ -1,4 +1,4 @@
-https://github.com/user-attachments/assets/00bcc686-96f8-4609-87f9-2737803debdd
+**NOTE:** Lumi is coming to the Unity Asset Store with new features and support. This repository is no longer being updated.
 
 # Lumi
 Lumi is a Unity Engine light detector, created to facilitate stealth and horror genre games.
@@ -29,8 +29,3 @@ If updating every frame is not necessary, the user can disable the *LightDetecto
 * Since realtime lights use ray casting, shadow caster mesh colliders need to be accurate.
 * Does not account for soft shadow edges - a sample point is either in shadow or not.
 * Cannot account for screen space Global Illumination solutions.
-
-* ## Screenshot
-![LumiDemo](https://github.com/user-attachments/assets/7236dc5c-821a-4696-9ff8-eac1585ed5f6)
-
-
