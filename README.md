@@ -1,4 +1,4 @@
-**NOTE:** Lumi is coming to the Unity Asset Store with new features and support. This repository is no longer being updated.
+[The latest version of Lumi is available on the Unity Asset Store](https://assetstore.unity.com/packages/slug/302308)
 
 # Lumi
 Lumi is a Unity Engine light detector, created to facilitate stealth and horror genre games.
