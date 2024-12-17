@@ -1,9 +1,11 @@
-[The latest version of Lumi is available on the Unity Asset Store](https://assetstore.unity.com/packages/slug/302308)
+NOTE: [The latest version of Lumi is available on the Unity Asset Store](https://assetstore.unity.com/packages/slug/302308)
+
+**This repository is no longer updated.**
 
 # Lumi
 Lumi is a Unity Engine light detector, created to facilitate stealth and horror genre games.
 
-The script has been tested to work best with URP and linear colour space.
+Tested to work with URP and linear colour space.
 
 ## Features
 * Supports Directional, Point, and Spot realtime lights.
@@ -12,15 +14,6 @@ The script has been tested to work best with URP and linear colour space.
 * Runs in editor for quick iteration.
 * Multiple sample points per detector.
 * Two sample point evaluation modes - Average and Max.
-* Disable Updates and manually update when needed.
-
-## Performance
-Impact on performance is proportional to the number of **Sample Points** and **Lights** specified in the *LightDetector*.
-Each light check attempts to perform early outs to ensure further calculations are only performed when necessary.
-
-Lights can be added to/removed from a *LightDetector* at any time during runtime to control performance.
-
-If updating every frame is not necessary, the user can disable the *LightDetector* component and manually invoke the *UpdateSampledLightAmount* method at a frequency more suited to their needs.
 
 ## Limitations
 * When **Baked Light Sample Mode** is set to **Lightmap**, following apply:
